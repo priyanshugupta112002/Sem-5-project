@@ -23,6 +23,8 @@ import Search from "./pages/Search";
 import ProductDetail from "./pages/ProductDetail";
 import Categories from "./pages/Categories";
 import CategoryProduct from "./pages/CategoryProduct";
+import CartPage from "./pages/CartPages";
+import AdminOrder from "./pages/Admin/AdminOrder";
 
 function App() {
   return (
@@ -31,6 +33,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/categories" element={<Categories />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/category/:slug" element={<CategoryProduct />} />
         <Route path="/product/:slug" element={<ProductDetail />} />
         <Route path="/about" element={<About />} />
@@ -40,7 +43,7 @@ function App() {
         <Route path="/dashboard" element={<Private />}>
           <Route path="user" element={<Dashboard />} />
           <Route path="user/orders" element={<Oders />} />
-          <Route path="user.profile" element={<Profile />} />
+          <Route path="user/profile" element={<Profile />} />
         </Route>
 
         <Route path="/dashboard" element={<AdminRoute />}>
@@ -50,6 +53,7 @@ function App() {
           <Route path="admin/create-category" element={<CreateCategory />} />
           <Route path="admin/product/:slug" element={<UpdateProdct />} />
           <Route path="admin/users" element={<User />} />
+          <Route path="admin/order" element={<AdminOrder />} />
         </Route>
 
         <Route path="/policy" element={<Policy />} />

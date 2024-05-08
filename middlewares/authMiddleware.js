@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 const requireSignIn = async (req, res, next) => {
   try {
     //is gives the id  or decode =req.user.id
-    console.log("require-signin");
+
     const decode = jwt.verify(
       req.headers.authorization,
       process.env.JWT_SECRET

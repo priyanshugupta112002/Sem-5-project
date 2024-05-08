@@ -1,7 +1,11 @@
 const productSchema = require("../models/productModel");
 const categorySchmea = require("../models/categoryModel");
+const orderSchema = require("../models/orderModule");
 const fs = require("fs");
 const slugify = require("slugify");
+const { Session, url } = require("inspector");
+const { Console } = require("console");
+const stripe = require("stripe")(process.env.STRIPE_KEY);
 
 const createProductController = async (req, res) => {
   try {
@@ -194,7 +198,6 @@ const productFilterController = async (req, res) => {
 const productCountController = async (req, res) => {
   try {
     const total = await productSchema.find({}).estimatedDocumentCount();
-
     res.status(201).send({
       success: true,
       total,
@@ -293,6 +296,96 @@ const productCategoryController = async (req, res) => {
   }
 };
 
+const makePaymentController = async (req, res) => {
+  try {
+    const { cart } = req.body;
+
+    const lineitems = cart.map((item) => ({
+      price_data: {
+        currency: "usd",
+        product_data: {
+          name: item.name,
+        },
+
+        unit_amount: 1 * 100,
+      },
+      quantity: item.price,
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineitems,
+      mode: "payment",
+      billing_address_collection: "auto",
+      submit_type: "pay",
+      success_url: "http://localhost:3000/dashboard/user/orders?success=true",
+      cancel_url: "http://localhost:3000/cart",
+    });
+    // res.redirect(303, session.url);
+    res.status(202).json({
+      succeess: true,
+      url: session.url,
+    });
+
+    // res.json({ url: session.url, status: "true" });
+  } catch (error) {
+    console.log(error);
+    res.status(422).send({
+      success: false,
+      message: "error in delete Category",
+      error,
+    });
+  }
+};
+
+const submitOrderController = async (req, res) => {
+  try {
+    const { cart, auth } = req.body;
+
+    if (cart && auth) {
+      const order = await orderSchema({
+        products: cart,
+        buyer: auth.user.id,
+      }).save();
+
+      res.status(202).json({
+        succeess: true,
+        order,
+      });
+    } else {
+      res.status(404).json({
+        message: "either cart is empty or user is not login",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({
+      succeess: false,
+      error,
+    });
+  }
+};
+const getOrderController = async (req, res) => {
+  try {
+    const { pid } = req.params;
+    console.log(pid);
+    const order = await orderSchema
+      .find({
+        buyer: pid,
+      })
+      .sort({ createdAt: -1 })
+      .populate("buyer")
+      .populate("products", "-photo");
+    res.status(202).json({
+      succeess: true,
+      order,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send({ success: false, error });
+  }
+};
+
 module.exports = {
   createProductController,
   getProductController,
@@ -303,7 +396,10 @@ module.exports = {
   productFilterController,
   productCountController,
   productListController,
+  getOrderController,
   searchProductController,
   relatedProductController,
   productCategoryController,
+  makePaymentController,
+  submitOrderController,
 };

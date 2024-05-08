@@ -14,6 +14,7 @@ connectDB();
 //middleware
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(express.static("public"));
 
 //Routes
 // app.use(authRoutes);

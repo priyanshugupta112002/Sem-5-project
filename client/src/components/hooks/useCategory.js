@@ -6,7 +6,7 @@ export default function useCategory() {
   const getCategory = async () => {
     try {
       const res = await fetch("/category");
-      const data = res.json();
+      const data =await res.json();
       setCategory(data?.Category);
     } catch (error) {
       console.log(error);

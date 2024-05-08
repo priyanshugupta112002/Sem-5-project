@@ -1,5 +1,6 @@
 const express = require("express");
 const { requireSignIn, IsAdmin } = require("../middlewares/authMiddleware");
+
 const {
   createProductController,
   getProductController,
@@ -13,6 +14,9 @@ const {
   searchProductController,
   relatedProductController,
   productCategoryController,
+  makePaymentController,
+  submitOrderController,
+  getOrderController,
 } = require("../controllers/productController");
 const formidableMiddleware = require("express-formidable");
 
@@ -58,5 +62,11 @@ Router.get("/related-product/:pid/:cid", relatedProductController);
 
 //Category wise route
 Router.get("/product-categroy/:slug", productCategoryController);
+
+Router.post("/create-checkout-session", makePaymentController);
+
+Router.post("/submit-order", submitOrderController);
+
+Router.get("/get-order/:pid", getOrderController);
 
 module.exports = Router;

@@ -22,7 +22,7 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("1");
+    // console.log("1");
     // console.log(userDetail, "handlesubmit");
     const { email, newPassword, answer } = userDetail;
     console.log(email, newPassword, answer);

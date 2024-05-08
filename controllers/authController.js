@@ -1,6 +1,7 @@
 const { bcryptPassword, comparePassword } = require("../helpers/authHelper");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
+const orderSchema = require("../models/orderModule");
 
 const registerController = async (req, res) => {
   try {
@@ -145,10 +146,86 @@ const forgetPassword = async (req, res) => {
     });
   }
 };
+const updateProfile = async (req, res) => {
+  try {
+    const { name, password, phone, address } = req.body;
+    const userExist = await User.findById(req.user._id);
+
+    if (password && password.length < 6) {
+      return res.status(422).send({
+        success: false,
+        message: "Password should be grater than 6 digit ",
+      });
+    }
+
+    const hashedPssword = password ? await bcryptPassword(password) : undefined;
+    const updateUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        name: name || userExist.name,
+        phone: phone || userExist.phone,
+        address: address || userExist.address,
+        password: hashedPssword || userExist.password,
+      },
+      { new: true }
+    );
+    console.log(updateUser);
+    res.status(201).json({
+      success: true,
+      message: "Profile Updated",
+      updateUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send({
+      success: false,
+      message: error,
+    });
+  }
+};
+const getAllOrderController = async (req, res) => {
+  try {
+    const order = await orderSchema
+      .find({})
+      .sort({ createdAt: -1 })
+      .populate("buyer", "name")
+      .populate("products", "-photo");
+    res.status(202).json({
+      succeess: true,
+      order,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(404).send({ success: false, error });
+  }
+};
+
+const orderStatusController = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { value } = req.body;
+    console.log(orderId, value);
+    const data = await orderSchema.findByIdAndUpdate(
+      orderId,
+      { status: value },
+      { new: true }
+    );
+    res.status(202).json(data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: true,
+      error,
+    });
+  }
+};
 
 module.exports = {
   registerController,
   loginController,
   testController,
   forgetPassword,
+  updateProfile,
+  getAllOrderController,
+  orderStatusController,
 };

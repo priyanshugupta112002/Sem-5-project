@@ -4,9 +4,12 @@ import { useAuth } from "../../context/auth";
 import { toast } from "react-hot-toast";
 import SearchForm from "../Form/SearchForm";
 import useCategory from "../hooks/useCategory";
+import { Badge } from "antd";
+import { useCart } from "../../context/cart";
 
 const Header = () => {
   const [auth, setAuth] = useAuth();
+  const [Cart] = useCart();
   const category = useCategory();
 
   const handleLogout = () => {
@@ -40,11 +43,13 @@ const Header = () => {
             </Link>
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               <SearchForm />
+
               <li className="nav-item">
                 <NavLink to="/" className="nav-link ">
                   Home
                 </NavLink>
               </li>
+
               <li className="nav-item dropdown">
                 <Link
                   className="nav-link dropdown-toggle"
@@ -55,11 +60,6 @@ const Header = () => {
                   Category
                 </Link>
                 <ul className="dropdown-menu">
-                  <li>
-                    <Link className="dropdown-item" to={"/categories"}>
-                      All Categories
-                    </Link>
-                  </li>
                   {category?.map((c) => (
                     <li>
                       <Link
@@ -124,9 +124,11 @@ const Header = () => {
                 </>
               )}
               <li className="nav-item">
-                <NavLink to="/cart" className="nav-link" href="#">
-                  Cart (0)
-                </NavLink>
+                <Badge count={Cart?.length} showZero>
+                  <NavLink to="/cart" className="nav-link" href="#">
+                    Cart
+                  </NavLink>
+                </Badge>
               </li>
             </ul>
           </div>
