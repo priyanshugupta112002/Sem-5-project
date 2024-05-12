@@ -20,6 +20,7 @@ const HomePage = () => {
 
   const getAllCategory = async () => {
     try {
+      console.log("get all category");
       const res = await fetch("/category");
       const data = await res.json();
       if (res.status === 201) {
@@ -31,17 +32,22 @@ const HomePage = () => {
   };
 
   const handleFilter = (value, id) => {
+    console.log(value, id);
     let all = [...checked];
+    console.log(all);
+    console.log(checked);
     if (value) {
       all.push(id);
     } else {
-      all.filter((c) => c !== id);
+      all = all.filter((c) => c !== id);
     }
     setChecked(all);
   };
 
   useEffect(() => {
     const getAllProduct = async () => {
+      console.log(" get all product");
+
       try {
         setLoading(true);
         const res = await fetch(`/product-List/${page}`, {
@@ -49,7 +55,7 @@ const HomePage = () => {
         });
         setLoading(false);
         const data = await res.json();
-        setProduct(data?.product);
+        setProduct([...product, ...data?.product]);
       } catch (error) {
         setLoading(false);
         console.log(error);
@@ -58,28 +64,31 @@ const HomePage = () => {
     };
 
     if (!radio.length || !checked.length) getAllProduct();
-  }, [checked.length, radio.length, page]);
+  }, [checked.length, radio.length]);
 
-  // const loadMore = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await fetch(`/product-List/${page}`);
-  //     const data = await res.json();
-  //     setLoading(false);
-  //     setProduct([...product, ...data?.product]);
-  //   } catch (error) {
-  //     setLoading(false);
-  //     console.log(error);
-  //     toast.error("Can not fetch more product");
-  //   }
-  // };
-  // useEffect(() => {
-  //   if (page === 1) return;
-  //   loadMore();
-  // }, [page]);
+  const loadMore = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/product-List/${page}`);
+      const data = await res.json();
+      setLoading(false);
+      setProduct([...product, ...data?.product]);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+      toast.error("Can not fetch more product");
+    }
+  };
+  useEffect(() => {
+    if (page === 1) return;
+    loadMore();
+  }, [page]);
 
   useEffect(() => {
     const getFilterProduct = async () => {
+      console.log("get filter product");
+      console.log(checked);
+
       try {
         const res = await fetch("/product-filter", {
           method: "POST",
@@ -103,6 +112,8 @@ const HomePage = () => {
   }, [checked, radio]);
 
   const getTotal = async () => {
+    console.log("get total");
+
     try {
       const res = await fetch("/product-count");
       const data = await res.json();
