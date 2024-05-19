@@ -91,7 +91,7 @@ const AdminOrder = () => {
                             ))}
                           </Select>
                         </td>
-                        <td>{o.buyer.name}</td>
+                        <td>{o?.buyer.name}</td>
                         <td>{moment(o?.createAt).fromNow()}</td>
                         <td>
                           <p>SuccessFull</p>
